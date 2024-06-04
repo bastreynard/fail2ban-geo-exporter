@@ -47,6 +47,8 @@ def store_banned_ip(banned_ip: str) -> bool :
     req_sent = False
     ip = banned_ip[0]
     timestamp = banned_ip[1]
+    attempts = banned_ip[2]
+
     # Check if the IP address already exists in the database
     cursor.execute("SELECT COUNT(*) FROM banned_ips WHERE ip = %s", (ip,))
     count = cursor.fetchone()[0]
@@ -57,18 +59,18 @@ def store_banned_ip(banned_ip: str) -> bool :
         req_sent = True
         if geo_info:
             insert_query = """
-            INSERT INTO banned_ips (ip, bantime, country, city, isp, latitude, longitude)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO banned_ips (ip, bantime, country, city, isp, latitude, longitude, attempts)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(insert_query, (ip, timestamp, geo_info['country'], 
                 geo_info['city'], geo_info['isp'],
-                geo_info['lat'], geo_info['lon']))
+                geo_info['lat'], geo_info['lon'], attempts))
         else:
             insert_query_no_geo = """
-            INSERT INTO banned_ips (ip, bantime)
-            VALUES (%s, %s)
+            INSERT INTO banned_ips (ip, bantime, attempts)
+            VALUES (%s, %s, %s)
             """
-            cursor.execute(insert_query_no_geo, (ip, timestamp))
+            cursor.execute(insert_query_no_geo, (ip, timestamp, attempts))
         conn.commit()
     else:
         print(f"IP {ip} already exists in the database. Skipping insertion.")
@@ -107,29 +109,40 @@ def remove_banned_ip(ip: str) -> None:
     cursor.close()
     conn.close()
 
-def parse_log_file(log_file_path: str) -> tuple[tuple[str,str], tuple[str,str]]:
+def parse_log_file(log_file_path: str) -> tuple[list[str,str,int], list[str,str]]:
     ip_states = {}
     ban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  \[sshd\] (Ban|Restore Ban) (\d+\.\d+\.\d+\.\d+)')
     unban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  \[sshd\] Unban (\d+\.\d+\.\d+\.\d+)')
+    attempt_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* INFO    \[sshd\] Found (\d+\.\d+\.\d+\.\d+) .*')
 
     with open(log_file_path, 'r') as file:
+        # Search Bans/Unbans
         for line in file:
             ban_match = ban_pattern.search(line)
             if ban_match:
                 timestamp = datetime.strptime(ban_match.group(1), '%Y-%m-%d %H:%M:%S,%f')
                 ip = ban_match.group(3)
                 if ip not in ip_states or ip_states[ip][1] == 'unban':
-                    ip_states[ip] = (timestamp, 'ban')
+                    ip_states[ip] = [timestamp, 'ban', 0]
             
             unban_match = unban_pattern.search(line)
             if unban_match:
                 timestamp = datetime.strptime(unban_match.group(1), '%Y-%m-%d %H:%M:%S,%f')
                 ip = unban_match.group(2)
                 if ip not in ip_states or ip_states[ip][0] < timestamp:
-                    ip_states[ip] = (timestamp, 'unban')
+                    ip_states[ip] = [timestamp, 'unban']
+
+    with open(log_file_path, 'r') as file:
+        # Search attempts
+        for line in file:
+            attempt_match = attempt_pattern.search(line)
+            if attempt_match:
+                ip = attempt_match.group(2)
+                if ip in ip_states and ip_states[ip][1] == 'ban':
+                    ip_states[ip][2] += 1 # Increments attempts number
 
     # Separate IPs into banned and unbanned based on the latest state
-    banned_ips = {(ip, state[0]) for ip, state in ip_states.items() if state[1] == 'ban'}
+    banned_ips = {(ip, state[0], state[2]) for ip, state in ip_states.items() if state[1] == 'ban'}
     unbanned_ips = {(ip, state[0]) for ip, state in ip_states.items() if state[1] == 'unban'}
 
     return banned_ips, unbanned_ips
