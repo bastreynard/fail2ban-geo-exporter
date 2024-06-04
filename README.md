@@ -15,15 +15,19 @@ There is a ready to use `docker-compose.yml` that will setup 2 containers:
 - `mysql`: Container for storing fail2ban data
 - `f2b-geo-exporter`: Container running the python parser/exporter periodically
 
-Update the MYSQL_ROOT_PASSWORD to your liking in `docker-compose.yml`, in both `f2b-geo-export` and `mysql` services.
+### Prepare install
 
-Update the `cronjob` file if you want another period (5 mins).
+- Update the MYSQL_ROOT_PASSWORD to your liking in `docker-compose.yml`, in both `f2b-geo-export` and `mysql` services.
 
-NOTE: Because of ip-api limitations, the script will wait for 1 minute every 45 requests. Hence, you should not set the period to a value too short.
+- Update the `cronjob` file if you want another period (5 mins).
 
-Replace network `net_prometheus` with the network your grafana instance is running on, or simply connect your grafana instance to `net_f2b_geo_export`.
+    NOTE: Because of ip-api limitations, the script will wait for 1 minute every 45 requests. Hence, you should not set the period to a value too short.
 
-If necessary, adapt the path to fail2ban logs (default: `/var/log/fail2ban.log`).
+- Replace network `net_prometheus` with the network your grafana instance is running on, or simply connect your grafana instance to `net_f2b_geo_export`.
+
+- If necessary, adapt the path to fail2ban logs (default: `/var/log/fail2ban.log`).
+
+### Run
 
 Build and run the docker containers:
 
