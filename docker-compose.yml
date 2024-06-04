@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: _sqlrootpassword_
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./app/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
     expose:

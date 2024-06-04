@@ -3,11 +3,11 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-COPY f2b-geo-parser.py .
+COPY app/requirements.txt .
+COPY app/f2b-geo-parser.py .
 
 # Copy the entrypoint script into the container
-COPY entrypoint.sh /usr/local/bin/
+COPY app/entrypoint.sh /usr/local/bin/
 # Make the entrypoint script executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
 # Set the entrypoint to the script
@@ -17,7 +17,7 @@ RUN apt update && apt install cron nano -y
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Add cron job file
-COPY cronjob /etc/cron.d/cronjob
+COPY app/cronjob /etc/cron.d/cronjob
 
 # Give execution rights on the cron job
 RUN chmod 0644 /etc/cron.d/cronjob
