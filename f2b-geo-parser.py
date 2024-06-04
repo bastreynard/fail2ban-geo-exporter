@@ -22,7 +22,7 @@ db_config = {
 }
 
 # Function to get geo info from IP-API
-def get_geo_info(ip):
+def get_geo_info(ip: str) -> dict | None:
     try:
         response = requests.get(f"http://ip-api.com/json/{ip}")
         response.raise_for_status()  # Raise an exception for HTTP errors (e.g., 404, 500)
@@ -78,7 +78,7 @@ def store_banned_ip(banned_ip: str) -> bool :
     return req_sent
 
 # Function to store the number of bans at a given time
-def store_num_bans():
+def store_num_bans() -> None:
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     now = datetime.now()
@@ -96,7 +96,7 @@ def store_num_bans():
     conn.close()
 
 # Function to remove unbanned IP info from the database
-def remove_banned_ip(ip):
+def remove_banned_ip(ip: str) -> None:
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
 
@@ -107,7 +107,7 @@ def remove_banned_ip(ip):
     cursor.close()
     conn.close()
 
-def parse_log_file(log_file_path):
+def parse_log_file(log_file_path: str) -> tuple[tuple[str,str], tuple[str,str]]:
     ip_states = {}
     ban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  \[sshd\] (Ban|Restore Ban) (\d+\.\d+\.\d+\.\d+)')
     unban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  \[sshd\] Unban (\d+\.\d+\.\d+\.\d+)')
