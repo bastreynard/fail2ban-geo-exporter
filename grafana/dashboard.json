@@ -441,7 +441,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT latitude, longitude, ip, country, region, isp FROM banned_ips_db.banned_ips",
+          "rawSql": "SELECT latitude, longitude, ip, country, city, isp FROM banned_ips_db.banned_ips",
           "refId": "A",
           "sql": {
             "columns": [
@@ -663,7 +663,17 @@
             },
             "inspect": false
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "index": 0,
+                  "text": "Ban restored"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -710,7 +720,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT bantime, ip, country, region, isp FROM banned_ips_db.banned_ips ORDER BY bantime",
+          "rawSql": "SELECT bantime, ip, attempts, country, city, isp FROM banned_ips_db.banned_ips ORDER BY bantime",
           "refId": "A",
           "sql": {
             "columns": [
@@ -765,6 +775,16 @@
         }
       ],
       "title": "Banned IPs",
+      "transformations": [
+        {
+          "id": "formatTime",
+          "options": {
+            "outputFormat": "D MMM k:m:s",
+            "timeField": "bantime",
+            "useTimezone": true
+          }
+        }
+      ],
       "type": "table"
     }
   ],
@@ -782,6 +802,6 @@
   "timezone": "browser",
   "title": "F2B map",
   "uid": "cdnqz4dnh8sn4f",
-  "version": 22,
+  "version": 24,
   "weekStart": ""
 }
