@@ -57,11 +57,11 @@ def store_banned_ip(banned_ip: str) -> bool :
         req_sent = True
         if geo_info:
             insert_query = """
-            INSERT INTO banned_ips (ip, bantime, country, region, isp, latitude, longitude)
+            INSERT INTO banned_ips (ip, bantime, country, city, isp, latitude, longitude)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(insert_query, (ip, timestamp, geo_info['country'], 
-                geo_info['regionName'], geo_info['isp'],
+                geo_info['city'], geo_info['isp'],
                 geo_info['lat'], geo_info['lon']))
         else:
             insert_query_no_geo = """
