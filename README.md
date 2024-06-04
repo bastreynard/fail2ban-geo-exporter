@@ -45,5 +45,5 @@ The python script output will be located under `/var/log/cron.log`.
 
 ## Grafana
 
-Add a new MySQL data connection to your grafana instance and import the `dashboard.json`
+Add a new MySQL data connection to your grafana instance and import the `dashboard.json` or directly from https://grafana.com/grafana/dashboards/21209.
 
