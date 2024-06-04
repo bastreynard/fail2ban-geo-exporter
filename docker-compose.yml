@@ -1,0 +1,43 @@
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-f2b-geo-export
+    environment:
+      MYSQL_ROOT_PASSWORD: _sqlrootpassword_
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    expose:
+      - 3306
+    networks:
+      - net_prometheus
+      - net_f2b_geo_export
+    restart: always
+
+  f2b-geo-exporter:
+    build: .
+    container_name: f2b-geo-exporter
+    depends_on:
+      - mysql
+    volumes:
+      - /var/log/fail2ban.log:/var/log/fail2ban.log
+    environment:
+      - MYSQL_HOST=mysql-f2b-geo-export
+      - MYSQL_DATABASE=banned_ips_db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=_sqlrootpassword_
+    networks:
+      - net_f2b_geo_export
+    restart: always
+
+volumes:
+  mysql_data:
+
+networks:
+  net_f2b_geo_export:
+    name: net_f2b_geo_export
+  net_prometheus:
+    external: true

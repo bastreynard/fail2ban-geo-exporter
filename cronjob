@@ -1,0 +1,1 @@
+*/5 * * * * root /usr/local/bin/python /app/f2b-geo-parser.py >> /var/log/cron.log 2>&1
