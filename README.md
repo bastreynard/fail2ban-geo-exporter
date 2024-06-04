@@ -6,7 +6,7 @@ The parsed log and additional geo data is stored in a mysql database for easy Gr
 
 For now it exports only the banned IPs from the sshd jail.
 
-![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/7a33a8ee-54c3-4abf-8ea9-55b56b73dbea)
+![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/d1838c0c-e6fc-4fb4-a20a-c08be1d33f9e)
 
 ## Docker Install
 
