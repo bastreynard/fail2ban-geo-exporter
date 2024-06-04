@@ -92,7 +92,6 @@ def parse_log_file(log_file_path):
         for line in file:
             ban_match = ban_pattern.search(line)
             if ban_match:
-                print(line)
                 timestamp = datetime.strptime(ban_match.group(1), '%Y-%m-%d %H:%M:%S,%f')
                 ip = ban_match.group(3)
                 if ip not in ip_states or ip_states[ip][1] == 'unban':
@@ -100,7 +99,6 @@ def parse_log_file(log_file_path):
             
             unban_match = unban_pattern.search(line)
             if unban_match:
-                print(line)
                 timestamp = datetime.strptime(unban_match.group(1), '%Y-%m-%d %H:%M:%S,%f')
                 ip = unban_match.group(2)
                 if ip not in ip_states or ip_states[ip][0] < timestamp:
