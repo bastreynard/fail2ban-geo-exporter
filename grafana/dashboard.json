@@ -19,6 +19,12 @@
     },
     {
       "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "panel",
       "id": "geomap",
       "name": "Geomap",
       "version": ""
@@ -104,8 +110,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 12,
+        "h": 4,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -166,6 +172,97 @@
       ],
       "title": "Number of banned IPs",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "${DS_MYSQL-F2B-GEO}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.4.2",
+      "targets": [
+        {
+          "dataset": "banned_ips_db",
+          "datasource": {
+            "type": "mysql",
+            "uid": "${DS_MYSQL-F2B-GEO}"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "SELECT SUM(attempts) FROM banned_ips_db.banned_ips LIMIT 50 ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "name": "SUM",
+                "parameters": [
+                  {
+                    "name": "attempts",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "banned_ips"
+        }
+      ],
+      "title": "Total failed attempts",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -353,10 +450,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 19,
+        "h": 18,
         "w": 12,
         "x": 0,
-        "y": 3
+        "y": 4
       },
       "id": 1,
       "options": {
@@ -795,13 +892,13 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "F2B map",
   "uid": "cdnqz4dnh8sn4f",
-  "version": 24,
+  "version": 25,
   "weekStart": ""
 }
