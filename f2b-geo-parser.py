@@ -40,33 +40,57 @@ def get_geo_info(ip):
         return None
 
 # Function to store banned IP info in the database
-def store_banned_ip(ip, geo_info):
+# Returns True is the request was sent to IP-API
+def store_banned_ip(banned_ip: str) -> bool :
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
-    bantime = datetime.now()
-
+    req_sent = False
+    ip = banned_ip[0]
+    timestamp = banned_ip[1]
     # Check if the IP address already exists in the database
     cursor.execute("SELECT COUNT(*) FROM banned_ips WHERE ip = %s", (ip,))
     count = cursor.fetchone()[0]
 
     if count == 0:
-        insert_query = """
-        INSERT INTO banned_ips (ip, bantime, country, region, isp, latitude, longitude)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """
-        insert_query_no_geo = """
-        INSERT INTO banned_ips (ip, bantime)
-        VALUES (%s, %s)
-        """
+        # Fetch geo info 
+        geo_info = get_geo_info(ip)
+        req_sent = True
         if geo_info:
-            cursor.execute(insert_query, (ip, bantime, geo_info['country'], 
+            insert_query = """
+            INSERT INTO banned_ips (ip, bantime, country, region, isp, latitude, longitude)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (ip, timestamp, geo_info['country'], 
                 geo_info['regionName'], geo_info['isp'],
                 geo_info['lat'], geo_info['lon']))
         else:
-            cursor.execute(insert_query_no_geo, (ip, bantime))
+            insert_query_no_geo = """
+            INSERT INTO banned_ips (ip, bantime)
+            VALUES (%s, %s)
+            """
+            cursor.execute(insert_query_no_geo, (ip, timestamp))
         conn.commit()
     else:
         print(f"IP {ip} already exists in the database. Skipping insertion.")
+
+    cursor.close()
+    conn.close()
+    return req_sent
+
+# Function to store the number of bans at a given time
+def store_num_bans():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    now = datetime.now()
+    cursor.execute("SELECT COUNT(ip) FROM banned_ips")
+    count = cursor.fetchone()[0]
+    print(f"Currently banned : {count}")
+    insert_query = """
+            INSERT INTO num_bans (timestamp, num)
+            VALUES (%s, %s)
+            """
+    cursor.execute(insert_query, (now, count))
+    conn.commit()
 
     cursor.close()
     conn.close()
@@ -105,35 +129,35 @@ def parse_log_file(log_file_path):
                     ip_states[ip] = (timestamp, 'unban')
 
     # Separate IPs into banned and unbanned based on the latest state
-    banned_ips = {ip for ip, state in ip_states.items() if state[1] == 'ban'}
-    unbanned_ips = {ip for ip, state in ip_states.items() if state[1] == 'unban'}
+    banned_ips = {(ip, state[0]) for ip, state in ip_states.items() if state[1] == 'ban'}
+    unbanned_ips = {(ip, state[0]) for ip, state in ip_states.items() if state[1] == 'unban'}
 
     return banned_ips, unbanned_ips
 
 # Main function
 def main():
     log_file_path = '/var/log/fail2ban.log'  # Path to the log file
+    num_req = 0
     banned_ips, unbanned_ips = parse_log_file(log_file_path)
 
-    ip_list = list(banned_ips)
-    for i in range(0, len(ip_list), 45):
-        batch = ip_list[i:i + 45]
-        for ip in batch:
-            geo_info = get_geo_info(ip)
-            if geo_info:
-                store_banned_ip(ip, geo_info)
-                print(f"Banned IP {ip} information stored successfully.")
-            else:
-                store_banned_ip(ip, None)
-                print(f"Failed to retrieve geo information for IP {ip}.")
-        if i + 45 < len(ip_list):
+    # Process banned IPs
+    for ip in banned_ips:
+        req_sent = store_banned_ip(ip)
+        if req_sent:
+            num_req = num_req + 1
+        print(f"Banned IP {ip[0]} information stored successfully.")
+        if num_req == 45:
             print("Rate limit reached. Waiting for 60 seconds before continuing.")
+            num_req = 0
             time.sleep(60)
 
     # Process unbanned IPs
     for ip in unbanned_ips:
-        remove_banned_ip(ip)
-        print(f"Unbanned IP {ip} removed successfully.")
+        remove_banned_ip(ip[0])
+        print(f"Unbanned IP {ip[0]} removed successfully.")
+
+    # Store number of bans
+    store_num_bans()
 
 if __name__ == "__main__":
     main()
