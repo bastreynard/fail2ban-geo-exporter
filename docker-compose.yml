@@ -30,7 +30,7 @@ services:
       MYSQL_DATABASE: banned_ips_db
       MYSQL_USER: root
       MYSQL_PASSWORD: _sqlrootpassword_
-      TZ: "Europe/Zurich"
+      TZ: "UTC"
     networks:
       - net_f2b_geo_export
     restart: always
