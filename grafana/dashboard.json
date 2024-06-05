@@ -142,7 +142,7 @@
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT COUNT(ip) FROM banned_ips_db.banned_ips LIMIT 50 ",
+          "rawSql": "SELECT COUNT(ip) FROM banned_ips_db.banned_ips WHERE jail = '$jail' ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -165,7 +165,40 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50
+            "orderBy": {
+              "property": {
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "989bb8bb-0123-4456-b89a-b18fe85d5a5f",
+                  "properties": {
+                    "field": "jail",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      "$jail"
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "text"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "aa889aab-0123-4456-b89a-b18fe85c6e85",
+              "properties": {
+                "conjunction": "AND"
+              },
+              "type": "group"
+            },
+            "whereString": "jail = '$jail'"
           },
           "table": "banned_ips"
         }
@@ -231,10 +264,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(attempts) FROM banned_ips_db.banned_ips",
+          "rawSql": "SELECT SUM(attempts) FROM banned_ips_db.banned_ips WHERE jail = '$jail' ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -257,7 +290,31 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "b88b88a8-0123-4456-b89a-b18fe85dbd0a",
+                  "properties": {
+                    "field": "jail",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      "$jail"
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "text"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "aa889aab-0123-4456-b89a-b18fe85c6e85",
+              "type": "group"
+            },
+            "whereString": "jail = '$jail'"
           },
           "table": "banned_ips"
         }
@@ -545,10 +602,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT latitude, longitude, ip, country, city, isp FROM banned_ips_db.banned_ips",
+          "rawSql": "SELECT latitude, longitude, ip, country, city, isp FROM banned_ips_db.banned_ips WHERE jail = '$jail' ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -591,7 +648,7 @@
               {
                 "parameters": [
                   {
-                    "name": "region",
+                    "name": "city",
                     "type": "functionParameter"
                   }
                 ],
@@ -615,7 +672,31 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "88bbbbb8-cdef-4012-b456-718fe85e8aae",
+                  "properties": {
+                    "field": "jail",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      "$jail"
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "text"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "aa889aab-0123-4456-b89a-b18fe85c6e85",
+              "type": "group"
+            },
+            "whereString": "jail = '$jail'"
           },
           "table": "banned_ips"
         }
@@ -633,8 +714,10 @@
           "color": {
             "mode": "continuous-GrYlRd"
           },
+          "displayName": "${__field.labels}",
           "fieldMinMax": false,
           "mappings": [],
+          "noValue": "-",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -682,10 +765,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT country FROM banned_ips_db.banned_ips",
+          "rawSql": "SELECT country FROM banned_ips_db.banned_ips WHERE jail = '$jail' ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -707,7 +790,31 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "a89b98ab-0123-4456-b89a-b18fe85e2875",
+                  "properties": {
+                    "field": "jail",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      "$jail"
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "text"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "aa889aab-0123-4456-b89a-b18fe85c6e85",
+              "type": "group"
+            },
+            "whereString": "jail = '$jail'"
           },
           "table": "banned_ips"
         }
@@ -826,10 +933,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT bantime, ip, attempts, country, city, isp FROM banned_ips_db.banned_ips ORDER BY bantime",
+          "rawSql": "SELECT ip, country, city, isp FROM banned_ips_db.banned_ips WHERE jail = '$jail' ORDER BY bantime ASC ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -854,7 +961,7 @@
               {
                 "parameters": [
                   {
-                    "name": "region",
+                    "name": "city",
                     "type": "functionParameter"
                   }
                 ],
@@ -878,7 +985,39 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50
+            "orderBy": {
+              "property": {
+                "name": "bantime",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "ASC",
+            "whereJsonTree": {
+              "children1": [
+                {
+                  "id": "889a88aa-4567-489a-bcde-f18fe85ef1b1",
+                  "properties": {
+                    "field": "jail",
+                    "fieldSrc": "field",
+                    "operator": "equal",
+                    "value": [
+                      "$jail"
+                    ],
+                    "valueSrc": [
+                      "value"
+                    ],
+                    "valueType": [
+                      "text"
+                    ]
+                  },
+                  "type": "rule"
+                }
+              ],
+              "id": "aa889aab-0123-4456-b89a-b18fe85c6e85",
+              "type": "group"
+            },
+            "whereString": "jail = '$jail'"
           },
           "table": "banned_ips"
         }
@@ -888,8 +1027,9 @@
         {
           "id": "formatTime",
           "options": {
-            "outputFormat": "D MMM k:m:s",
+            "outputFormat": "D MMM k:mm:ss",
             "timeField": "bantime",
+            "timezone": "browser",
             "useTimezone": true
           }
         }
@@ -901,16 +1041,38 @@
   "schemaVersion": 39,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {},
+        "datasource": {
+          "type": "mysql",
+          "uid": "${DS_MYSQL-F2B-GEO}"
+        },
+        "definition": "SELECT jail from jails",
+        "description": "Jail selection",
+        "hide": 0,
+        "includeAll": false,
+        "label": "jail",
+        "multi": false,
+        "name": "jail",
+        "options": [],
+        "query": "SELECT jail from jails",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
   },
   "time": {
-    "from": "now-12h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "F2B map",
   "uid": "cdnqz4dnh8sn4f",
-  "version": 29,
+  "version": 36,
   "weekStart": ""
 }
