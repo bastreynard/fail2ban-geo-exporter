@@ -1,3 +1,0 @@
-*/5 * * * * root /usr/local/bin/python /app/f2b-geo-parser.py >> /var/log/cron.log 2>&1
-# Empty log every day at 1am
-0 1 * * * root echo "" > /var/log/cron.log

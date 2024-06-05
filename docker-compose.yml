@@ -30,7 +30,8 @@ services:
       MYSQL_DATABASE: banned_ips_db
       MYSQL_USER: root
       MYSQL_PASSWORD: _sqlrootpassword_
-      TZ: "UTC"
+      TZ: "UTC" # It's good pratice to store UTC timestamps in databases, keep it UTC and Grafana will do the rest
+      EXPORT_INTERVAL: 5 # Interval in minutes for the exporter to run
     networks:
       - net_f2b_geo_export
     restart: always
