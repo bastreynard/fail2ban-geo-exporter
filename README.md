@@ -4,7 +4,7 @@ Collect informations about a running fail2ban instance, along with location data
 
 The parsed log and additional geo data is stored in a mysql database for easy Grafana visualization.
 
-![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/d1838c0c-e6fc-4fb4-a20a-c08be1d33f9e)
+![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/230ab984-1392-4d6f-90cb-ba1db4d8bd02)
 
 ## Docker Install
 
