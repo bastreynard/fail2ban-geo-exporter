@@ -4,8 +4,6 @@ Collect informations about a running fail2ban instance, along with location data
 
 The parsed log and additional geo data is stored in a mysql database for easy Grafana visualization.
 
-For now it exports only the banned IPs from the sshd jail.
-
 ![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/d1838c0c-e6fc-4fb4-a20a-c08be1d33f9e)
 
 ## Docker Install
@@ -17,7 +15,7 @@ There is a ready to use `docker-compose.yml` that will setup 2 containers:
 
 ### Prepare install
 
-- Update the MYSQL_ROOT_PASSWORD and Timezone to your liking in `docker-compose.yml`, in both `f2b-geo-export` and `mysql` services.
+- Update the MYSQL_ROOT_PASSWORD to your liking in `docker-compose.yml`, in both `f2b-geo-export` and `mysql` services.
 
 - Update the `cronjob` file if you want another period (5 mins).
 
