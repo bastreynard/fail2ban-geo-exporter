@@ -47,7 +47,8 @@ def store_banned_ip(banned_ip: str) -> bool :
     req_sent = False
     ip = banned_ip[0]
     timestamp = banned_ip[1]
-    attempts = banned_ip[2]
+    attempts = banned_ip[3]
+    jail = banned_ip[2]
 
     # Check if the IP address already exists in the database
     cursor.execute("SELECT COUNT(*) FROM banned_ips WHERE ip = %s", (ip,))
@@ -59,18 +60,18 @@ def store_banned_ip(banned_ip: str) -> bool :
         req_sent = True
         if geo_info:
             insert_query = """
-            INSERT INTO banned_ips (ip, bantime, country, city, isp, latitude, longitude, attempts)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO banned_ips (ip, bantime, country, city, isp, latitude, longitude, attempts, jail)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             cursor.execute(insert_query, (ip, timestamp, geo_info['country'], 
                 geo_info['city'], geo_info['isp'],
-                geo_info['lat'], geo_info['lon'], attempts))
+                geo_info['lat'], geo_info['lon'], attempts, jail))
         else:
             insert_query_no_geo = """
-            INSERT INTO banned_ips (ip, bantime, attempts)
-            VALUES (%s, %s, %s)
+            INSERT INTO banned_ips (ip, bantime, attempts, jail)
+            VALUES (%s, %s, %s, %s)
             """
-            cursor.execute(insert_query_no_geo, (ip, timestamp, attempts))
+            cursor.execute(insert_query_no_geo, (ip, timestamp, attempts, jail))
         conn.commit()
     else:
         print(f"IP {ip} already exists in the database. Skipping insertion.")
@@ -97,6 +98,24 @@ def store_num_bans() -> None:
     cursor.close()
     conn.close()
 
+def store_jails(jails: list[str]) -> None:
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    print(f"jails : {jails}")
+    for jail in jails:
+        cursor.execute("SELECT COUNT(*) FROM jails WHERE jail = %s", (jail,))
+        count = cursor.fetchone()[0]
+        if count == 0:
+            insert_query = """
+                    INSERT INTO jails (jail) 
+                    VALUES (%s)
+                    """
+            cursor.execute(insert_query, (jail,))
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
 # Function to remove unbanned IP info from the database
 def remove_banned_ip(ip: str) -> None:
     conn = mysql.connector.connect(**db_config)
@@ -109,11 +128,26 @@ def remove_banned_ip(ip: str) -> None:
     cursor.close()
     conn.close()
 
-def parse_log_file(log_file_path: str) -> tuple[list[str,str,int], list[str,str]]:
+# Function to extract active jails from log file
+def parse_jails(log_file_path: str) -> list[str]:
+    jail_pattern = re.compile(r'^(.*?\[.*?\]: INFO\s*\[\s*([^\]]+)\s*\])')
+    jails = []
+    with open(log_file_path, 'r') as file:
+        # Search jails
+        for line in file:
+            jail_match = jail_pattern.search(line)
+            if jail_match:
+                jail = jail_match.group(2)
+                if jail not in jails:
+                    jails.append(jail)
+    return jails
+
+# Function to extract banned and unbanned IPs from log file
+def parse_log_file(log_file_path: str) -> tuple[list[str,str,str,int], list[str,str,str]]:
     ip_states = {}
-    ban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  \[sshd\] (Ban|Restore Ban) (\d+\.\d+\.\d+\.\d+)')
-    unban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  \[sshd\] Unban (\d+\.\d+\.\d+\.\d+)')
-    attempt_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* INFO    \[sshd\] Found (\d+\.\d+\.\d+\.\d+) .*')
+    ban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  (\[\s*([^\]]+)\s*\]) (Ban|Restore Ban) (\d+\.\d+\.\d+\.\d+)')
+    unban_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* NOTICE  (\[\s*([^\]]+)\s*\]) Unban (\d+\.\d+\.\d+\.\d+)')
+    attempt_pattern = re.compile(r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) .* INFO    (\[\s*([^\]]+)\s*\]) Found (\d+\.\d+\.\d+\.\d+) .*')
 
     with open(log_file_path, 'r') as file:
         # Search Bans/Unbans
@@ -121,29 +155,32 @@ def parse_log_file(log_file_path: str) -> tuple[list[str,str,int], list[str,str]
             ban_match = ban_pattern.search(line)
             if ban_match:
                 timestamp = datetime.strptime(ban_match.group(1), '%Y-%m-%d %H:%M:%S,%f')
-                ip = ban_match.group(3)
+                jail = ban_match.group(3)
+                ip = ban_match.group(5)
                 if ip not in ip_states or ip_states[ip][1] == 'unban':
-                    ip_states[ip] = [timestamp, 'ban', 0]
+                    ip_states[ip] = [timestamp, 'ban', jail, 0]
             
             unban_match = unban_pattern.search(line)
             if unban_match:
                 timestamp = datetime.strptime(unban_match.group(1), '%Y-%m-%d %H:%M:%S,%f')
-                ip = unban_match.group(2)
+                jail = unban_match.group(3)
+                ip = unban_match.group(4)
                 if ip not in ip_states or ip_states[ip][0] < timestamp:
-                    ip_states[ip] = [timestamp, 'unban']
+                    ip_states[ip] = [timestamp, 'unban', jail]
 
     with open(log_file_path, 'r') as file:
         # Search attempts
         for line in file:
             attempt_match = attempt_pattern.search(line)
             if attempt_match:
-                ip = attempt_match.group(2)
+                jail = attempt_match.group(3)
+                ip = attempt_match.group(4)
                 if ip in ip_states and ip_states[ip][1] == 'ban':
-                    ip_states[ip][2] += 1 # Increments attempts number
+                    ip_states[ip][3] += 1 # Increments attempts number
 
     # Separate IPs into banned and unbanned based on the latest state
-    banned_ips = {(ip, state[0], state[2]) for ip, state in ip_states.items() if state[1] == 'ban'}
-    unbanned_ips = {(ip, state[0]) for ip, state in ip_states.items() if state[1] == 'unban'}
+    banned_ips = {(ip, state[0], state[2], state[3]) for ip, state in ip_states.items() if state[1] == 'ban'}
+    unbanned_ips = {(ip, state[0], state[2]) for ip, state in ip_states.items() if state[1] == 'unban'}
 
     return banned_ips, unbanned_ips
 
@@ -151,6 +188,8 @@ def parse_log_file(log_file_path: str) -> tuple[list[str,str,int], list[str,str]
 def main():
     log_file_path = '/var/log/fail2ban.log'  # Path to the log file
     num_req = 0
+    jails = parse_jails(log_file_path)
+    store_jails(jails)
     banned_ips, unbanned_ips = parse_log_file(log_file_path)
 
     # Process banned IPs
@@ -162,7 +201,7 @@ def main():
         if num_req == 45:
             print("Rate limit reached. Waiting for 60 seconds before continuing.")
             num_req = 0
-            time.sleep(60)
+            time.sleep(62)
 
     # Process unbanned IPs
     for ip in unbanned_ips:

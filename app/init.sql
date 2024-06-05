@@ -10,11 +10,17 @@ CREATE TABLE IF NOT EXISTS banned_ips (
     isp VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
     latitude DECIMAL(10, 8) DEFAULT NULL,
     longitude DECIMAL(11, 8) DEFAULT NULL,
-    attempts INT
+    attempts INT DEFAULT 0,
+    jail VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS num_bans (
     id INT AUTO_INCREMENT PRIMARY KEY,
     timestamp DATETIME NOT NULL,
     num INT
+);
+
+Create TABLE IF NOT EXISTS jails (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    jail VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 );
