@@ -15,9 +15,7 @@ There is a ready to use `docker-compose.yml` that will setup 2 containers:
 
 ### Prepare install
 
-- Update the MYSQL_ROOT_PASSWORD to your liking in `docker-compose.yml`, in both `f2b-geo-export` and `mysql` services.
-
-- Update the `cronjob` file if you want another period (5 mins).
+- Update the MYSQL_ROOT_PASSWORD and EXPORT_INTERVAL to your liking in `docker-compose.yml`.
 
     NOTE: Because of ip-api limitations, the script will wait for 1 minute every 45 requests. Hence, you should not set the period to a value too short.
 
