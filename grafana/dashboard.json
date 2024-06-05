@@ -231,9 +231,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "format": "table",
-          "rawSql": "SELECT SUM(attempts) FROM banned_ips_db.banned_ips LIMIT 50 ",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(attempts) FROM banned_ips_db.banned_ips",
           "refId": "A",
           "sql": {
             "columns": [
@@ -374,9 +375,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "format": "table",
-          "rawSql": "SELECT timestamp, num FROM banned_ips_db.num_bans LIMIT 50 ",
+          "rawQuery": true,
+          "rawSql": "SELECT timestamp, num FROM banned_ips_db.num_bans ORDER BY timestamp",
           "refId": "A",
           "sql": {
             "columns": [
@@ -407,7 +409,15 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50
+            "limit": 100,
+            "orderBy": {
+              "property": {
+                "name": "timestamp",
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
           },
           "table": "num_bans"
         }
@@ -623,6 +633,7 @@
           "color": {
             "mode": "continuous-GrYlRd"
           },
+          "fieldMinMax": false,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -648,9 +659,9 @@
       },
       "id": 5,
       "options": {
-        "displayMode": "lcd",
+        "displayMode": "basic",
         "maxVizHeight": 300,
-        "minVizHeight": 16,
+        "minVizHeight": 11,
         "minVizWidth": 8,
         "namePlacement": "auto",
         "orientation": "horizontal",
@@ -671,9 +682,10 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "format": "table",
-          "rawSql": "SELECT country FROM banned_ips_db.banned_ips LIMIT 50 ",
+          "rawQuery": true,
+          "rawSql": "SELECT country FROM banned_ips_db.banned_ips",
           "refId": "A",
           "sql": {
             "columns": [
@@ -892,13 +904,13 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "F2B map",
   "uid": "cdnqz4dnh8sn4f",
-  "version": 25,
+  "version": 29,
   "weekStart": ""
 }
