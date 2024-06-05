@@ -5,6 +5,7 @@ services:
     container_name: mysql-f2b-geo-export
     environment:
       MYSQL_ROOT_PASSWORD: _sqlrootpassword_
+      TZ: "Europe/Zurich"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./app/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -25,10 +26,11 @@ services:
     volumes:
       - /var/log/fail2ban.log:/var/log/fail2ban.log
     environment:
-      - MYSQL_HOST=mysql-f2b-geo-export
-      - MYSQL_DATABASE=banned_ips_db
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=_sqlrootpassword_
+      MYSQL_HOST: mysql-f2b-geo-export
+      MYSQL_DATABASE: banned_ips_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: _sqlrootpassword_
+      TZ: "Europe/Zurich"
     networks:
       - net_f2b_geo_export
     restart: always
