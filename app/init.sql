@@ -14,10 +14,11 @@ CREATE TABLE IF NOT EXISTS banned_ips (
     jail VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS num_bans (
+CREATE TABLE IF NOT EXISTS total_metrics (
     id INT AUTO_INCREMENT PRIMARY KEY,
     timestamp DATETIME NOT NULL,
-    num INT
+    num_ips INT,
+    num_failed_attempts INT
 );
 
 Create TABLE IF NOT EXISTS jails (
