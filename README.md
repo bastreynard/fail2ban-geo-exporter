@@ -41,8 +41,14 @@ Check that the database is beeing updated regularly (default: 5 mins):
 
 `docker exec -it mysql-f2b-geo-export mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -Dbanned_ips_db -e "SELECT COUNT(*) FROM banned_ips"`
 
-The python script output will be located under `/var/log/cron.log`.
+The python script output will be located under `/var/log/cron.log`, and cleared every day at 1am.
 
 ## Grafana
 
-Add a new MySQL data connection to your grafana instance and import the `dashboard.json` or directly from https://grafana.com/grafana/dashboards/21210.
+[Add a new MySQL data source to your Grafana](https://grafana.com/grafana/plugins/mysql/) instance with 
+- Host URL: mysql-f2b-geo-export:3306
+- Database name: banned_ips_db
+- Username: root
+- Password: MYSQL_ROOT_PASSWORD set in ```docker-compose.yml```
+
+Then you can import `grafana/dashboard.json` or directly from [Grafana](https://grafana.com/grafana/dashboards/21210).
