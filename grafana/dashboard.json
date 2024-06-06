@@ -267,15 +267,14 @@
           "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT SUM(attempts) FROM banned_ips_db.banned_ips WHERE jail = '$jail' ",
+          "rawSql": "SELECT num_failed_attempts FROM banned_ips_db.total_metrics LIMIT 50 ",
           "refId": "A",
           "sql": {
             "columns": [
               {
-                "name": "SUM",
                 "parameters": [
                   {
-                    "name": "attempts",
+                    "name": "num_failed_attempts",
                     "type": "functionParameter"
                   }
                 ],
@@ -290,33 +289,13 @@
                 "type": "groupBy"
               }
             ],
+            "limit": 50,
             "whereJsonTree": {
-              "children1": [
-                {
-                  "id": "b88b88a8-0123-4456-b89a-b18fe85dbd0a",
-                  "properties": {
-                    "field": "jail",
-                    "fieldSrc": "field",
-                    "operator": "equal",
-                    "value": [
-                      "$jail"
-                    ],
-                    "valueSrc": [
-                      "value"
-                    ],
-                    "valueType": [
-                      "text"
-                    ]
-                  },
-                  "type": "rule"
-                }
-              ],
-              "id": "aa889aab-0123-4456-b89a-b18fe85c6e85",
+              "id": "8a99ab89-0123-4456-b89a-b18fec443d56",
               "type": "group"
-            },
-            "whereString": "jail = '$jail'"
+            }
           },
-          "table": "banned_ips"
+          "table": "total_metrics"
         }
       ],
       "title": "Total failed attempts",
@@ -340,7 +319,7 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 25,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -358,7 +337,7 @@
             "spanNulls": false,
             "stacking": {
               "group": "A",
-              "mode": "none"
+              "mode": "normal"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -379,32 +358,7 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "num"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 7,
@@ -416,9 +370,9 @@
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+          "displayMode": "hidden",
+          "placement": "right",
+          "showLegend": false
         },
         "tooltip": {
           "mode": "single",
@@ -432,17 +386,17 @@
             "type": "mysql",
             "uid": "${DS_MYSQL-F2B-GEO}"
           },
-          "editorMode": "code",
+          "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT timestamp, num FROM banned_ips_db.num_bans ORDER BY timestamp",
+          "rawSql": "SELECT num_ips, timestamp FROM banned_ips_db.total_metrics ",
           "refId": "A",
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
-                    "name": "timestamp",
+                    "name": "num_ips",
                     "type": "functionParameter"
                   }
                 ],
@@ -451,7 +405,7 @@
               {
                 "parameters": [
                   {
-                    "name": "num",
+                    "name": "timestamp",
                     "type": "functionParameter"
                   }
                 ],
@@ -466,20 +420,64 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 100,
-            "orderBy": {
-              "property": {
-                "name": "timestamp",
-                "type": "string"
-              },
-              "type": "property"
-            },
-            "orderByDirection": "DESC"
+            "limit": null
           },
-          "table": "num_bans"
+          "table": "total_metrics"
+        },
+        {
+          "dataset": "banned_ips_db",
+          "datasource": {
+            "type": "mysql",
+            "uid": "${DS_MYSQL-F2B-GEO}"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "hide": false,
+          "rawSql": "SELECT num_failed_attempts, timestamp FROM banned_ips_db.total_metrics ",
+          "refId": "B",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "num_failed_attempts",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "timestamp",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": null
+          },
+          "table": "total_metrics"
         }
       ],
       "title": "Number of bans over time",
+      "transformations": [
+        {
+          "id": "prepareTimeSeries",
+          "options": {
+            "format": "multi"
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -936,7 +934,7 @@
           "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT ip, country, city, isp FROM banned_ips_db.banned_ips WHERE jail = '$jail' ORDER BY bantime ASC ",
+          "rawSql": "SELECT ip, country, city, isp, bantime FROM banned_ips_db.banned_ips WHERE jail = '$jail' ORDER BY bantime DESC ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -975,6 +973,15 @@
                   }
                 ],
                 "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "bantime",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
               }
             ],
             "groupBy": [
@@ -992,7 +999,7 @@
               },
               "type": "property"
             },
-            "orderByDirection": "ASC",
+            "orderByDirection": "DESC",
             "whereJsonTree": {
               "children1": [
                 {
@@ -1066,13 +1073,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "F2B map",
   "uid": "cdnqz4dnh8sn4f",
-  "version": 36,
+  "version": 39,
   "weekStart": ""
 }
