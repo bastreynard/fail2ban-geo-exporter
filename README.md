@@ -4,7 +4,7 @@ Collect informations about a running fail2ban instance, along with location data
 
 The parsed log and additional geo data is stored in a mysql database for easy Grafana visualization.
 
-![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/230ab984-1392-4d6f-90cb-ba1db4d8bd02)
+![image](https://github.com/bastreynard/fail2ban-geo-exporter/assets/26840072/af33bff4-0e43-42c7-a3bb-7fab930b01da)
 
 ## Docker Install
 
@@ -35,7 +35,7 @@ It's also possible to manually create a MySQL database (use init.sql file), and 
 
 ## Check install
 
-Check that the database is beeing updated regularly (default: 5 mins):
+Check that the database is being updated regularly (default: 5 mins):
 
 `docker exec -it mysql-f2b-geo-export mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -Dbanned_ips_db -e "SELECT * FROM banned_ips"`
 
