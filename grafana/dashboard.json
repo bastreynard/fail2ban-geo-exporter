@@ -214,6 +214,8 @@
       "fieldConfig": {
         "defaults": {
           "mappings": [],
+          "max": 1000,
+          "min": 0,
           "thresholds": {
             "mode": "percentage",
             "steps": [
@@ -267,11 +269,12 @@
           "editorMode": "builder",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT num_failed_attempts FROM banned_ips_db.total_metrics LIMIT 50 ",
+          "rawSql": "SELECT MAX(num_failed_attempts) FROM banned_ips_db.total_metrics ORDER BY timestamp LIMIT 1 ",
           "refId": "A",
           "sql": {
             "columns": [
               {
+                "name": "MAX",
                 "parameters": [
                   {
                     "name": "num_failed_attempts",
@@ -289,7 +292,14 @@
                 "type": "groupBy"
               }
             ],
-            "limit": 50,
+            "limit": 1,
+            "orderBy": {
+              "property": {
+                "name": "timestamp",
+                "type": "string"
+              },
+              "type": "property"
+            },
             "whereJsonTree": {
               "id": "8a99ab89-0123-4456-b89a-b18fec443d56",
               "type": "group"
@@ -298,7 +308,19 @@
           "table": "total_metrics"
         }
       ],
-      "title": "Total failed attempts",
+      "title": "Total failed attempts (All jails)",
+      "transformations": [
+        {
+          "id": "reduce",
+          "options": {
+            "includeTimeField": false,
+            "mode": "reduceFields",
+            "reducers": [
+              "last"
+            ]
+          }
+        }
+      ],
       "type": "gauge"
     },
     {
@@ -306,6 +328,7 @@
         "type": "mysql",
         "uid": "${DS_MYSQL-F2B-GEO}"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -419,8 +442,7 @@
                 },
                 "type": "groupBy"
               }
-            ],
-            "limit": null
+            ]
           },
           "table": "total_metrics"
         },
@@ -463,13 +485,12 @@
                 },
                 "type": "groupBy"
               }
-            ],
-            "limit": null
+            ]
           },
           "table": "total_metrics"
         }
       ],
-      "title": "Number of bans over time",
+      "title": "Bans/Attempts (All jails)",
       "transformations": [
         {
           "id": "prepareTimeSeries",
@@ -589,6 +610,7 @@
           "id": "coords",
           "lat": 29.186499,
           "lon": 5.40326,
+          "shared": true,
           "zoom": 1.92
         }
       },
@@ -1073,13 +1095,13 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "F2B map",
   "uid": "cdnqz4dnh8sn4f",
-  "version": 39,
+  "version": 44,
   "weekStart": ""
 }

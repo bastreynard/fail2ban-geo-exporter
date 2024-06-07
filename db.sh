@@ -2,7 +2,7 @@
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="_sqlrootpassword_"
 if [ -z "$1" ]; then
-echo "Possible args are \"geo\", \"time\" \"jails\" or \"clear\""
+echo "Possible args are \"geo\", \"total\" \"jails\" or \"clear\""
 exit 0;
 fi
 if [ $1 == "geo" ]; then
