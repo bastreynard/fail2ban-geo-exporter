@@ -162,14 +162,14 @@ def parse_jails(log_file_path: str) -> list[str]:
     Returns:
         list[str]: List of jails found in log file
     """
-    jail_pattern = re.compile(r'^(.*?\[.*?\]: INFO\s*\[\s*([^\]]+)\s*\])')
+    jail_pattern = re.compile(r'^(.*?\[.*?\]: (INFO|NOTICE)\s*\[\s*([^\]]+)\s*\])')
     jails = []
     with open(log_file_path, 'r') as file:
         # Search jails
         for line in file:
             jail_match = jail_pattern.search(line)
             if jail_match:
-                jail = jail_match.group(2)
+                jail = jail_match.group(3)
                 if jail not in jails:
                     jails.append(jail)
     return jails
@@ -222,8 +222,8 @@ def parse_log_file(log_file_path: str) -> tuple[list[str,str,str,int], list[str,
                     ip_states[ip][3] += 1 # Increments attempts number
 
     # Separate IPs into banned and unbanned based on the latest state
-    banned_ips = {(ip, state[0], state[2], state[3]) for ip, state in ip_states.items() if state[1] == 'ban'}
-    unbanned_ips = {(ip, state[0], state[2]) for ip, state in ip_states.items() if state[1] == 'unban'}
+    banned_ips = [(ip, state[0], state[2], state[3]) for ip, state in ip_states.items() if state[1] == 'ban']
+    unbanned_ips = [(ip, state[0], state[2]) for ip, state in ip_states.items() if state[1] == 'unban']
 
     return banned_ips, unbanned_ips, num_failed_attempts
 

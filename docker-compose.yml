@@ -25,6 +25,7 @@ services:
       - mysql
     volumes:
       - /var/log/fail2ban.log:/var/log/fail2ban.log
+      #- ./app/f2b-geo-parser.py:/dev/f2b-geo-parser.py # More convenient for developping, keep commented otherwise
     environment:
       MYSQL_HOST: mysql-f2b-geo-export
       MYSQL_DATABASE: banned_ips_db
