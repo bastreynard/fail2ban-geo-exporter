@@ -13,6 +13,8 @@ mysql_user = os.environ.get('MYSQL_USER')
 mysql_password = os.environ.get('MYSQL_PASSWORD')
 mysql_database = os.environ.get('MYSQL_DATABASE')
 
+retention_days = os.environ.get('RETENTION_DAYS')
+
 # Use the credentials in your database connection
 db_config = {
     'host': mysql_host,
@@ -21,7 +23,6 @@ db_config = {
     'database': mysql_database
 }
 
-# 
 def get_geo_info(ip: str) -> dict | None:
     """Function to get geo info from IP-API
 
@@ -109,6 +110,9 @@ def store_num_bans(num_banned_ips: int, num_failed_attempts: int) -> None:
             VALUES (%s, %s, %s)
             """
     cursor.execute(insert_query, (now, num_banned_ips, num_failed_attempts))
+
+    # Cleanup older entries
+    cursor.execute("DELETE FROM total_metrics WHERE timestamp < now() - interval %s DAY", (retention_days,))
     conn.commit()
 
     cursor.close()

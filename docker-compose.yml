@@ -33,6 +33,7 @@ services:
       MYSQL_PASSWORD: _sqlrootpassword_
       TZ: "UTC" # It's good pratice to store UTC timestamps in databases, keep it UTC and Grafana will do the rest
       EXPORT_INTERVAL: 5 # Interval in minutes for the exporter to run
+      RETENTION_DAYS: 30 # Remove entries older than 30 days
     networks:
       - net_f2b_geo_export
     restart: always
