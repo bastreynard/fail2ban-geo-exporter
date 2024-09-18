@@ -1,6 +1,10 @@
 #!/bin/bash
+# Utility script for accessing database
+# Use with caution !!!!
+
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="_sqlrootpassword_"
+
 if [ -z "$1" ]; then
 echo "Possible args are \"geo\", \"total\" \"jails\", \"clear\" or \"custom\""
 exit 0;
@@ -16,4 +20,6 @@ elif [ $1 == "clear" ]; then
 docker exec -it mysql-f2b-geo-export mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -Dbanned_ips_db -e "TRUNCATE TABLE banned_ips"
 elif [ $1 == "custom" ]; then
 docker exec -it mysql-f2b-geo-export mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -Dbanned_ips_db -e "$2"
+else
+echo "Possible args are \"geo\", \"total\" \"jails\", \"clear\" or \"custom\""
 fi

@@ -14,7 +14,7 @@ services:
     expose:
       - 3306
     networks:
-      - net_prometheus
+      - net_grafana
       - net_f2b_geo_export
     restart: always
 
@@ -44,5 +44,5 @@ volumes:
 networks:
   net_f2b_geo_export:
     name: net_f2b_geo_export
-  net_prometheus:
+  net_grafana:
     external: true

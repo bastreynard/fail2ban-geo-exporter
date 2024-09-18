@@ -19,7 +19,7 @@ There is a ready to use `docker-compose.yml` that will setup 2 containers:
 
     NOTE: Because of ip-api limitations, the script will wait for 1 minute every 45 requests. Hence, you should not set the period to a value too short.
 
-- Replace network `net_prometheus` with the network your grafana instance is running on, or simply connect your grafana instance to `net_f2b_geo_export`.
+- Replace network `net_grafana` with the network your grafana instance is running on, or simply connect your grafana instance to `net_f2b_geo_export`.
 
 - If necessary, adapt the path to fail2ban logs (default: `/var/log/fail2ban.log`).
 
