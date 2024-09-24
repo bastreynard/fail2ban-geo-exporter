@@ -1,4 +1,5 @@
 import os
+import glob
 import mysql.connector
 import requests
 import time
@@ -48,6 +49,17 @@ def get_geo_info(ip: str) -> dict | None:
         print(f"An error occurred while requesting geo information for IP {ip}: {e}")
         return None
 
+def db_cleanup_duplicates() -> None :
+    """Function to cleanup duplicates in the DB. Still trying to figure why it happens...
+    """    
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM banned_ips WHERE id NOT IN (SELECT MIN(id) FROM (SELECT * FROM banned_ips) AS ips GROUP BY ip)")
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 def store_banned_ip(banned_ip_info: list[str,str,str,int]) -> bool :
     """Function to store banned IP info in the database
 
@@ -60,10 +72,7 @@ def store_banned_ip(banned_ip_info: list[str,str,str,int]) -> bool :
     conn = mysql.connector.connect(**db_config)
     cursor = conn.cursor()
     req_sent = False
-    ip = banned_ip_info[0]
-    timestamp = banned_ip_info[1]
-    attempts = banned_ip_info[3]
-    jail = banned_ip_info[2]
+    ip, timestamp, jail, attempts = banned_ip_info[0], banned_ip_info[1], banned_ip_info[2], banned_ip_info[3]
 
     # Check if the IP address already exists in the database
     cursor.execute("SELECT COUNT(*) FROM banned_ips WHERE ip = %s", (ip,))
@@ -234,12 +243,20 @@ def parse_log_file(log_file_path: str) -> tuple[list[str,str,str,int], list[str,
 def main():
     """Entry point
     """
-    log_file_path = '/var/log/fail2ban.log'  # Path to the log file
     num_req = 0
-    jails = parse_jails(log_file_path)
-    store_jails(jails)
-    banned_ips, unbanned_ips, num_failed = parse_log_file(log_file_path)
-
+    # Use glob to find all fail2ban.log, fail2ban1.log, fail2ban2.log, etc.
+    log_files = glob.glob(os.path.join('/var/log/', 'fail2ban.log*'))
+    banned_ips, unbanned_ips = [], []
+    num_failed = 0
+    for log_file in log_files:
+        print(f"Parsing {log_file}")
+        jails = parse_jails(log_file)
+        store_jails(jails)
+        banned, unbanned, num = parse_log_file(log_file)
+        banned_ips = banned_ips + banned
+        unbanned_ips = unbanned_ips + unbanned
+        num_failed = num_failed + num
+        
     # Process banned IPs
     for ip in banned_ips:
         req_sent = store_banned_ip(ip)
@@ -258,6 +275,8 @@ def main():
 
     # Store number of bans
     store_num_bans(len(banned_ips), num_failed)
+    # Temporary
+    db_cleanup_duplicates()
 
 if __name__ == "__main__":
     main()
